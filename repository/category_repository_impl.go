@@ -7,19 +7,24 @@ import (
 	"template-restful-api/helper"
 	"errors"
 )
-type CategoryRepositoryImplementation struct {
-	db *sql.DB
+
+type CategoryRepositoryImpl struct {
 }
 
-func (repository *CategoryRepositoryImplementation) Get(ctx context.Context, tx *sql.Tx) []domain.Category  {
+func NewCategoryRepository() CategoryRepository {
+	return &CategoryRepositoryImpl{}
+}
+
+func (repository *CategoryRepositoryImpl) Get(ctx context.Context, tx *sql.Tx) []domain.Category  {
 	query := "SELECT * FROM category";
 	rows, err := tx.QueryContext(ctx,query)
+	defer rows.Close()
 	helper.PanicIfError(err)
 
 	var categories []domain.Category
 	for rows.Next() {
 		category := domain.Category{}
-		err := rows.Scan(&category)
+		err := rows.Scan(&category.Id, &category.Name)
 		helper.PanicIfError(err)
 
 		categories = append(categories, category)
@@ -27,11 +32,12 @@ func (repository *CategoryRepositoryImplementation) Get(ctx context.Context, tx 
 	return categories
 }
 
-func (repository *CategoryRepositoryImplementation) FindById(ctx context.Context, tx *sql.Tx, categoryId int) (*domain.Category, error)  {
+func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categoryId int) (domain.Category, error)  {
 	query := "SELECT * FROM category where id = ?";
 	rows, err := tx.QueryContext(ctx, query, categoryId)
+	defer rows.Close()
 	helper.PanicIfError(err);
-	category := &domain.Category{}
+	category := domain.Category{}
 	if rows.Next() {
 		err := rows.Scan(&category.Id, &category.Name)
 		helper.PanicIfError(err);
@@ -41,7 +47,7 @@ func (repository *CategoryRepositoryImplementation) FindById(ctx context.Context
 	}
 }
 
-func (repository *CategoryRepositoryImplementation) Store(ctx context.Context, tx *sql.Tx, category *domain.Category) *domain.Category  {
+func (repository *CategoryRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category  {
 	query := "INSERT INTO category (name) VALUES (?)"
 	result, err := tx.ExecContext(ctx, query, category.Name)
 	helper.PanicIfError(err)
@@ -54,14 +60,14 @@ func (repository *CategoryRepositoryImplementation) Store(ctx context.Context, t
 	return category;
 }
 
-func (repository *CategoryRepositoryImplementation) Update(ctx context.Context, tx *sql.Tx, category *domain.Category) *domain.Category  {
+func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category  {
 	query := "UPDATE category SET name = ? where id = ?"
 	_, err := tx.ExecContext(ctx, query, category.Name, category.Id)
 	helper.PanicIfError(err)
 	return category;
 }
 
-func (repository *CategoryRepositoryImplementation) Delete(ctx context.Context, tx *sql.Tx, category *domain.Category) {
+func (repository *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, category domain.Category) {
 	query := "DELETE from category where id = ?"
 	_, err := tx.ExecContext(ctx, query, category.Id)
 	helper.PanicIfError(err)

@@ -2,5 +2,5 @@ package domain
 
 type Category struct {
 	Id int
-	Name string
+	Name string `json:"name"`
 }

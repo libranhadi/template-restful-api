@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 	"template-restful-api/repository"
 	"template-restful-api/model/web"
 	"template-restful-api/model/domain"
@@ -14,6 +14,14 @@ type CategoryServiceImpl struct {
 	CategoryRepository repository.CategoryRepository
 	DB *sql.DB
 	Validate *validator.Validate
+}
+
+func NewCategoryService(CategoryRepository repository.CategoryRepository, DB * sql.DB, validate *validator.Validate) CategoryService {
+	return &CategoryServiceImpl{
+		CategoryRepository : CategoryRepository,
+		DB : DB,
+		Validate : validate,
+	}
 }
 
 func (service *CategoryServiceImpl) Get(ctx context.Context)[]web.CategoryResponse {
@@ -44,7 +52,6 @@ func (service *CategoryServiceImpl) FindById(ctx context.Context, categoryId int
 
 
 func (service *CategoryServiceImpl) Create(ctx context.Context, request web.CategoryCreateRequest) web.CategoryResponse {
-
 	errValidation := service.Validate.Struct(request)
 	helper.PanicIfError(errValidation)
 
@@ -55,8 +62,7 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, request web.Cate
 	category := domain.Category{
 		Name : request.Name,
 	}
-
-	category = service.CategoryRepository.Store(ctx, tx ,category)
+	category = service.CategoryRepository.Create(ctx, tx ,category)
 	return helper.ToCategoryResponse(category)
 }
 

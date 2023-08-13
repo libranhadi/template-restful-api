@@ -13,9 +13,15 @@ type CategorControllerImpl struct {
 	CategoryService service.CategoryService
 }
 
+func NewCategoryController(service service.CategoryService) CategoryController {
+	return &CategorControllerImpl{
+		CategoryService : service,
+	}
+}
+
 func (c *CategorControllerImpl) Create(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	categoryCreateRequest := web.CategoryCreateRequest{}
-	helper.ReadRequestBody(r, categoryCreateRequest)
+	helper.ReadRequestBody(r, &categoryCreateRequest)
 
 	categoryResponse := c.CategoryService.Create(r.Context(), categoryCreateRequest)
 	webResponse := web.WebResponse{
@@ -24,12 +30,12 @@ func (c *CategorControllerImpl) Create(w http.ResponseWriter, r *http.Request, p
 		Data : categoryResponse,
 	}
 
-	helper.WriteResponseJson(w, webResponse);
+	helper.WriteResponseJson(w, &webResponse);
 }
 
 func (c *CategorControllerImpl) Update(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	categoryRequest := web.CategoryUpdateRequest{}
-	helper.ReadRequestBody(r, categoryRequest)
+	helper.ReadRequestBody(r, &categoryRequest)
 
 	categoryId := params.ByName("id");
 	id, errConv := strconv.Atoi(categoryId)
@@ -44,7 +50,7 @@ func (c *CategorControllerImpl) Update(w http.ResponseWriter, r *http.Request, p
 		Data : categoryResponse,
 	}
 
-	helper.WriteResponseJson(w, webResponse);
+	helper.WriteResponseJson(w, &webResponse);
 }
 
 func (c *CategorControllerImpl) Delete(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -57,7 +63,7 @@ func (c *CategorControllerImpl) Delete(w http.ResponseWriter, r *http.Request, p
 		Code : 200,
 		Status : "OK",
 	}
-	helper.WriteResponseJson(w, webResponse);
+	helper.WriteResponseJson(w, &webResponse);
 }
 
 func (c *CategorControllerImpl) Get(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -68,7 +74,7 @@ func (c *CategorControllerImpl) Get(w http.ResponseWriter, r *http.Request, para
 		Data : categoryResponses,
 	}
 
-	helper.WriteResponseJson(w, webResponse);
+	helper.WriteResponseJson(w, &webResponse);
 }
 
 func (c *CategorControllerImpl) FindById(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -83,5 +89,5 @@ func (c *CategorControllerImpl) FindById(w http.ResponseWriter, r *http.Request,
 		Data : categoryResponse,
 	}
 
-	helper.WriteResponseJson(w, webResponse);
+	helper.WriteResponseJson(w, &webResponse);
 }

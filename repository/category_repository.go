@@ -9,7 +9,7 @@ import(
 type CategoryRepository interface {
 	Get(ctx context.Context, tx *sql.Tx) []domain.Category
 	FindById(ctx context.Context, tx *sql.Tx, Id int) (domain.Category, error)
-	Store(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category
+	Create(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category
 	Update(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category
 	Delete(ctx context.Context, tx *sql.Tx, category domain.Category)
 }
