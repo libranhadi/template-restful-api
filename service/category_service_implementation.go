@@ -7,6 +7,7 @@ import (
 	"template-restful-api/model/web"
 	"template-restful-api/model/domain"
 	"template-restful-api/helper"
+	"template-restful-api/exception"
 	"database/sql"
 )
 
@@ -45,7 +46,9 @@ func (service *CategoryServiceImpl) FindById(ctx context.Context, categoryId int
 
 	defer helper.CommitOrRollback(tx);
 	category, errFindId := service.CategoryRepository.FindById(ctx, tx, categoryId)
-	helper.PanicIfError(errFindId)
+	if errFindId != nil {
+		panic(exception.NewErrorNotFound(errFindId.Error()))
+	}
 
 	return helper.ToCategoryResponse(category)
 }
@@ -75,7 +78,9 @@ func (service *CategoryServiceImpl) Update(ctx context.Context, request web.Cate
 	defer helper.CommitOrRollback(tx);
 
 	category, errFindId := service.CategoryRepository.FindById(ctx, tx ,request.Id)
-	helper.PanicIfError(errFindId)
+	if errFindId != nil {
+		panic(exception.NewErrorNotFound(errFindId.Error()))
+	}
 
 	category.Name = request.Name
 	category = service.CategoryRepository.Update(ctx, tx, category)
@@ -87,7 +92,8 @@ func (service *CategoryServiceImpl) Delete(ctx context.Context, categoryId int) 
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx);
 	category, errFindId := service.CategoryRepository.FindById(ctx, tx, categoryId)
-
-	helper.PanicIfError(errFindId)
+	if errFindId != nil {
+		panic(exception.NewErrorNotFound(errFindId.Error()))
+	}
 	service.CategoryRepository.Delete(ctx, tx, category)
 }

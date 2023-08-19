@@ -7,7 +7,9 @@ import (
 	"template-restful-api/service"
 	"template-restful-api/controller"
 	"template-restful-api/app"
-	"template-restful-api/helper"
+	// "template-restful-api/helper"
+	"template-restful-api/exception"
+	"template-restful-api/middleware"
 	"net/http"
 )
 
@@ -25,12 +27,12 @@ func main() {
 	router.GET("/api/category/:id", categoryController.FindById)
 	router.PUT("/api/category/:id", categoryController.Update)
 	router.DELETE("/api/category/:id", categoryController.Delete)
-
+	router.PanicHandler = exception.ErrorHandler
 	server := http.Server{
 		Addr : "localhost:8000",
-		Handler : router,
+		Handler : middleware.NewSimpleAuthMiddleware(router),
 	}
 
-	err := server.ListenAndServe()
-	helper.PanicIfError(err);
+	server.ListenAndServe()
+	// helper.PanicIfError(err);
 }
